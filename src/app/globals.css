@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #fff8f5;
+  --color-card: #ffffff;
+  --color-primary: #ef7d7d;
+  --color-primary-dark: #d96565;
+  --color-primary-soft: #ffe4df;
+  --color-text: #3d2c2c;
+  --color-muted: #7a6666;
+  --color-border: #f3d6d1;
+  --color-warning-bg: #fff3e6;
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-kimochi-bg: var(--color-bg);
+  --color-kimochi-card: var(--color-card);
+  --color-kimochi-primary: var(--color-primary);
+  --color-kimochi-primary-dark: var(--color-primary-dark);
+  --color-kimochi-primary-soft: var(--color-primary-soft);
+  --color-kimochi-text: var(--color-text);
+  --color-kimochi-muted: var(--color-muted);
+  --color-kimochi-border: var(--color-border);
+  --color-kimochi-warning-bg: var(--color-warning-bg);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", Arial, sans-serif;
+}
+
+button,
+a,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-brand {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.soft-shadow {
+  box-shadow: 0 12px 30px rgb(95 54 41 / 10%);
+}
+
+.watercolor-bg {
+  background:
+    radial-gradient(circle at 20% 10%, rgb(255 228 223 / 70%), transparent 26%),
+    radial-gradient(circle at 84% 32%, rgb(255 235 224 / 70%), transparent 24%),
+    linear-gradient(180deg, #fffdf9 0%, #fff8f5 100%);
+}
