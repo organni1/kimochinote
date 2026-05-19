@@ -15,6 +15,7 @@ import {
   readDiagnosisResult,
   saveActionLog,
 } from "@/lib/storage/diagnosisStorage";
+import { loadSupabaseStateToLocalStorage, syncLocalDataToSupabase } from "@/lib/supabase/syncClient";
 import type { DiagnosisResult } from "@/types/diagnosis";
 import type { ActionLogStatus } from "@/types/plan";
 
@@ -37,7 +38,12 @@ export default function ActionLogDayPage() {
   const [insight, setInsight] = useState("");
 
   useEffect(() => {
-    const id = window.setTimeout(() => {
+    let mounted = true;
+
+    async function load() {
+      await loadSupabaseStateToLocalStorage();
+      if (!mounted) return;
+
       const purchasedValue = hasPurchased7DayPlan();
       setPurchased(purchasedValue);
       setCheckedPurchase(true);
@@ -54,15 +60,19 @@ export default function ActionLogDayPage() {
       if (!purchasedValue) {
         router.replace("/plan/offer");
       }
-    }, 0);
-    return () => window.clearTimeout(id);
+    }
+
+    load();
+    return () => {
+      mounted = false;
+    };
   }, [day, router]);
 
   const issueCategory = result?.issueCategory ?? "general";
   const plan = useMemo(() => buildSevenDayPlan(issueCategory).find((item) => item.day === day), [day, issueCategory]);
   const isSupportedDay = day === 1 && Boolean(plan);
 
-  function save() {
+  async function save() {
     if (!plan || !isSupportedDay) return;
     saveActionLog({
       day,
@@ -71,6 +81,7 @@ export default function ActionLogDayPage() {
       selfFeeling: selfFeeling.trim(),
       insight: insight.trim(),
     });
+    await syncLocalDataToSupabase();
     router.push("/plan/7days");
   }
 

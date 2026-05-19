@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { CheckoutSuccessClient } from "@/components/checkout/CheckoutSuccessClient";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
+import { savePurchaseFromCheckoutSession } from "@/lib/supabase/userData";
 
 async function verifyCheckoutSession(sessionId: string) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -10,7 +11,22 @@ async function verifyCheckoutSession(sessionId: string) {
   try {
     const stripe = new Stripe(secretKey);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    return session.payment_status === "paid";
+    const userId = session.metadata?.user_id ?? session.client_reference_id;
+    const isPaid = session.payment_status === "paid";
+
+    if (isPaid && userId) {
+      await savePurchaseFromCheckoutSession({
+        userId,
+        email: session.customer_details?.email ?? session.customer_email,
+        sessionId: session.id,
+        customerId: typeof session.customer === "string" ? session.customer : null,
+        amountTotal: session.amount_total,
+        currency: session.currency,
+        status: "paid",
+      });
+    }
+
+    return isPaid;
   } catch (error) {
     console.error("Failed to verify Stripe Checkout Session", error);
     return false;

@@ -66,6 +66,10 @@ export function readActionLogs() {
   return readJson<ActionLogsByDay>(STORAGE_KEYS.actionLogs, {});
 }
 
+export function saveActionLogs(logs: ActionLogsByDay) {
+  if (canUseStorage()) window.localStorage.setItem(STORAGE_KEYS.actionLogs, JSON.stringify(logs));
+}
+
 export function readActionLog(day: number) {
   return readActionLogs()[String(day)] ?? null;
 }

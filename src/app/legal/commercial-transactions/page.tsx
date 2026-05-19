@@ -32,7 +32,7 @@ export default function CommercialTransactionsPage() {
       </LegalSection>
 
       <LegalSection title="支払い方法">
-        <p>クレジットカード、Apple Pay、Google Pay（Stripe接続後に対応予定）</p>
+        <p>クレジットカード、Apple Pay、Google Pay（Stripe Checkoutで対応）</p>
       </LegalSection>
 
       <LegalSection title="商品の引き渡し時期">
@@ -41,7 +41,8 @@ export default function CommercialTransactionsPage() {
 
       <LegalSection title="返品・キャンセル">
         <p>
-          デジタルコンテンツの性質上、購入後の返品・キャンセルは原則としてお受けできません。ただし、法令上必要な場合はこの限りではありません。
+          デジタルコンテンツの性質上、購入後の返品・キャンセルは原則としてお受けできません。
+          ただし、法令上必要な場合はこの限りではありません。
         </p>
       </LegalSection>
     </LegalPage>

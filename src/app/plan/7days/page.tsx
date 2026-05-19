@@ -16,26 +16,64 @@ import {
   readActionLogs,
   readDiagnosisResult,
 } from "@/lib/storage/diagnosisStorage";
+import { loadSupabaseStateToLocalStorage } from "@/lib/supabase/syncClient";
 import type { DiagnosisResult } from "@/types/diagnosis";
 import type { ActionLogsByDay } from "@/types/plan";
 
 export default function SevenDaysPlanPage() {
   const [purchased, setPurchased] = useState(false);
+  const [checkingPurchase, setCheckingPurchase] = useState(true);
+  const [restoreMessage, setRestoreMessage] = useState("");
   const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [logs, setLogs] = useState<ActionLogsByDay>({});
 
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      setPurchased(hasPurchased7DayPlan());
+    let mounted = true;
+
+    async function load() {
+      const localPurchased = hasPurchased7DayPlan();
+      setPurchased(localPurchased);
       setResult(readDiagnosisResult());
       setLogs(readActionLogs());
-    }, 0);
-    return () => window.clearTimeout(id);
+
+      const remote = await loadSupabaseStateToLocalStorage();
+      if (!mounted) return;
+
+      if (remote.ok && remote.data) {
+        setPurchased(localPurchased || remote.data.purchased);
+        setResult(readDiagnosisResult());
+        setLogs(readActionLogs());
+        if (remote.data.purchased && !localPurchased) {
+          setRestoreMessage("購入済み状態をメールアカウントから復元しました。");
+        }
+      }
+
+      setCheckingPurchase(false);
+    }
+
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const issueCategory = result?.issueCategory ?? "general";
   const plans = useMemo(() => buildSevenDayPlan(issueCategory), [issueCategory]);
   const dayOneLog = logs["1"] ?? null;
+
+  if (checkingPurchase) {
+    return (
+      <MobileShell>
+        <AppHeader showBack backHref="/plan/offer" title="7日間プラン" />
+        <Card className="text-center">
+          <h1 className="text-2xl font-bold">購入情報を確認しています</h1>
+          <p className="mt-3 leading-loose text-kimochi-muted">
+            端末内の情報と、ログイン中のメールアカウントに紐づく購入情報を確認しています。
+          </p>
+        </Card>
+      </MobileShell>
+    );
+  }
 
   if (!purchased) {
     return (
@@ -56,6 +94,10 @@ export default function SevenDaysPlanPage() {
           <PrimaryButton href="/plan/offer" className="mt-5">
             購入ページへ進む
           </PrimaryButton>
+          <p className="mt-4 text-sm leading-relaxed text-kimochi-muted">
+            購入済みなのに表示されない場合は、購入時と同じメールアドレスで
+            購入確認画面からログインしてください。
+          </p>
         </Card>
       </MobileShell>
     );
@@ -68,6 +110,12 @@ export default function SevenDaysPlanPage() {
   return (
     <MobileShell>
       <AppHeader showBack backHref="/diagnosis/result" title="あなた専用 7日間アクションプラン" />
+
+      {restoreMessage ? (
+        <Card className="mb-5 border border-emerald-100 bg-emerald-50">
+          <p className="text-sm font-bold text-emerald-700">{restoreMessage}</p>
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-3 gap-3">
         {[

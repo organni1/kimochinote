@@ -5,17 +5,25 @@ import { useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { savePurchased7DayPlan } from "@/lib/storage/diagnosisStorage";
+import { syncLocalDataToSupabase } from "@/lib/supabase/syncClient";
 
 export function CheckoutSuccessClient({ isPaid }: { isPaid: boolean }) {
   const router = useRouter();
 
   useEffect(() => {
     if (!isPaid) return;
+
+    let timeoutId: number | undefined;
     savePurchased7DayPlan();
-    const id = window.setTimeout(() => {
-      router.replace("/plan/7days");
-    }, 900);
-    return () => window.clearTimeout(id);
+    syncLocalDataToSupabase().finally(() => {
+      timeoutId = window.setTimeout(() => {
+        router.replace("/plan/7days");
+      }, 900);
+    });
+
+    return () => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
   }, [isPaid, router]);
 
   if (!isPaid) {
