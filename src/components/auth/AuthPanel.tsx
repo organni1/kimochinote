@@ -17,6 +17,7 @@ export function AuthPanel({
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [hasSent, setHasSent] = useState(false);
   const configured = isSupabaseBrowserConfigured();
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function AuthPanel({
   async function sendMagicLink() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) {
-      setMessage("Supabaseの設定がまだ完了していません。");
+      setMessage("Supabaseの設定がまだ完了していません。環境変数を確認してください。");
       return;
     }
 
@@ -56,11 +57,14 @@ export function AuthPanel({
     });
 
     setIsSending(false);
-    setMessage(
-      error
-        ? "メールを送信できませんでした。入力内容を確認してください。"
-        : "ログイン用のメールを送信しました。メール内のリンクを開いてください。"
-    );
+
+    if (error) {
+      setMessage("メールを送信できませんでした。メールアドレスとSupabaseの認証設定を確認してください。");
+      return;
+    }
+
+    setHasSent(true);
+    setMessage("ログイン用メールを送信しました。メール内のリンクを開くと購入に進めます。");
   }
 
   if (!configured) {
@@ -91,6 +95,7 @@ export function AuthPanel({
           購入済み状態を別の端末でも復元できるよう、メールアドレスに購入情報を紐づけます。
         </p>
       </div>
+
       <input
         type="email"
         value={email}
@@ -101,10 +106,24 @@ export function AuthPanel({
         placeholder="mail@example.com"
         className="min-h-14 w-full rounded-2xl border border-kimochi-border bg-white px-4 outline-none focus:border-kimochi-primary"
       />
+
       <PrimaryButton onClick={sendMagicLink} disabled={isSending || !email.trim()}>
-        {isSending ? "メールを送信しています..." : "ログイン用メールを送る"}
+        {isSending ? "メールを送信しています..." : hasSent ? "ログイン用メールを再送する" : "ログイン用メールを送る"}
       </PrimaryButton>
+
       {message ? <p className="text-sm leading-relaxed text-kimochi-muted">{message}</p> : null}
+
+      {hasSent ? (
+        <div className="rounded-2xl border border-kimochi-border bg-kimochi-bg p-4 text-sm leading-relaxed text-kimochi-muted">
+          <p className="font-bold text-kimochi-text">メールが届かない場合</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>入力したメールアドレスに間違いがないか確認してください。</li>
+            <li>迷惑メール、プロモーション、すべてのメールを確認してください。</li>
+            <li>数分待っても届かない場合は、もう一度送信してください。</li>
+            <li>それでも届かない場合は、運営者にお問い合わせください。</li>
+          </ul>
+        </div>
+      ) : null}
     </Card>
   );
 }
