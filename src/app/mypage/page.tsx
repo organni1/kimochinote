@@ -144,14 +144,21 @@ export default function MyPage() {
           <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
             {purchased
               ? "購入済みコンテンツをこの端末で確認できます。"
-              : "購入すると、あなたの悩みに合わせた7日間アクションプランを確認できます。"}
+              : result
+                ? "購入すると、あなたの悩みに合わせた7日間アクションプランを確認できます。"
+                : "7日間プランは診断結果に合わせて作成されます。まず診断を完了してください。"}
           </p>
           <div className="mt-5 space-y-3">
             {purchased ? (
               <PrimaryButton href="/plan/7days">7日間プランを見る</PrimaryButton>
-            ) : (
+            ) : result ? (
               <>
                 <PrimaryButton href="/plan/offer">購入ページへ進む</PrimaryButton>
+                <SecondaryButton href="/checkout/confirm">購入済みの方はこちら</SecondaryButton>
+              </>
+            ) : (
+              <>
+                <PrimaryButton href="/diagnosis/start">診断をはじめる</PrimaryButton>
                 <SecondaryButton href="/checkout/confirm">購入済みの方はこちら</SecondaryButton>
               </>
             )}
@@ -194,8 +201,10 @@ export default function MyPage() {
           <div className="mt-5">
             {purchased ? (
               <PrimaryButton href="/plan/7days">ログを記録する</PrimaryButton>
-            ) : (
+            ) : result ? (
               <SecondaryButton href="/plan/offer">7日間プランを確認する</SecondaryButton>
+            ) : (
+              <SecondaryButton href="/diagnosis/start">診断をはじめる</SecondaryButton>
             )}
           </div>
         </Card>
