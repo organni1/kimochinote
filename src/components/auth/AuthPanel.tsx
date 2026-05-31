@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { Card } from "@/components/ui/Card";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
@@ -64,14 +64,6 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
     return () => subscription.unsubscribe();
   }, [onAuthChange]);
 
-  function PanelWrapper({ children, className }: { children: ReactNode; className?: string }) {
-    if (embedded) {
-      return <div className={className}>{children}</div>;
-    }
-
-    return <Card className={className}>{children}</Card>;
-  }
-
   async function sendMagicLink() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) {
@@ -101,27 +93,40 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
   }
 
   if (!configured) {
-    return (
-      <PanelWrapper className="border border-amber-200 bg-kimochi-warning-bg">
+    const content = (
+      <>
         <p className="font-bold text-amber-700">メール認証の設定が必要です</p>
         <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
           購入情報をアカウントに保存するには、メール認証の設定が必要です。
         </p>
-      </PanelWrapper>
+      </>
+    );
+
+    return embedded ? (
+      <div className="border border-amber-200 bg-kimochi-warning-bg">{content}</div>
+    ) : (
+      <Card className="border border-amber-200 bg-kimochi-warning-bg">{content}</Card>
     );
   }
 
   if (user) {
-    return (
-      <PanelWrapper className="border border-emerald-100 bg-emerald-50">
+    const content = (
+      <>
         <p className="font-bold text-emerald-700">ログイン中です</p>
         <p className="mt-1 text-sm leading-relaxed text-emerald-700">{user.email}</p>
-      </PanelWrapper>
+      </>
+    );
+
+    return embedded ? (
+      <div className="border border-emerald-100 bg-emerald-50">{content}</div>
+    ) : (
+      <Card className="border border-emerald-100 bg-emerald-50">{content}</Card>
     );
   }
 
-  return (
-    <PanelWrapper className={`space-y-4 ${highlight ? "border-2 border-kimochi-primary bg-[#fffafa]" : ""}`}>
+  const formClassName = `space-y-4 ${highlight ? "border-2 border-kimochi-primary bg-[#fffafa]" : ""}`;
+  const formContent = (
+    <>
       {!hideIntro ? (
         <div>
           <p className="font-bold text-kimochi-primary">{title}</p>
@@ -166,6 +171,12 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
           </ul>
         </div>
       ) : null}
-    </PanelWrapper>
+    </>
+  );
+
+  return embedded ? (
+    <div className={formClassName}>{formContent}</div>
+  ) : (
+    <Card className={formClassName}>{formContent}</Card>
   );
 });
