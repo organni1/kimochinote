@@ -45,7 +45,7 @@ export async function getAuthenticatedUser(request: Request) {
   if (!accessToken) return { user: null, error: "メール認証が必要です。" };
 
   const supabase = createSupabaseUserClient(accessToken);
-  if (!supabase) return { user: null, error: "Supabaseの設定が完了していません。" };
+  if (!supabase) return { user: null, error: "認証設定が完了していません。" };
 
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return { user: null, error: "ログイン状態を確認できませんでした。" };

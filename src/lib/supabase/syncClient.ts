@@ -29,7 +29,7 @@ export async function syncLocalDataToSupabase() {
 
   if (!response.ok) {
     const data = (await response.json().catch(() => null)) as { error?: string } | null;
-    return { ok: false, error: data?.error ?? "Supabaseへの保存に失敗しました。" };
+    return { ok: false, error: data?.error ?? "保存に失敗しました。" };
   }
 
   return { ok: true, error: null };

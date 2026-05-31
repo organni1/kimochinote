@@ -18,7 +18,7 @@ export default function AuthCallbackPage() {
     if (!supabase) {
       window.setTimeout(() => {
         setFailed(true);
-        setMessage("Supabaseの設定が完了していません。");
+        setMessage("メール認証の設定が完了していません。");
       }, 0);
       return;
     }

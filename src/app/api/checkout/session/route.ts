@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     } catch (profileError) {
       console.error("Failed to ensure profile before checkout", profileError);
       return NextResponse.json(
-        { error: "購入情報を保存する準備に失敗しました。Supabaseの設定を確認してください。" },
+        { error: "購入情報を保存する準備に失敗しました。認証設定を確認してください。" },
         { status: 500 }
       );
     }

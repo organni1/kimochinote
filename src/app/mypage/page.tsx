@@ -17,8 +17,8 @@ import {
   readActionLogs,
   readDiagnosisResult,
 } from "@/lib/storage/diagnosisStorage";
-import { getSupabaseBrowserClient, isSupabaseBrowserConfigured } from "@/lib/supabase/client";
-import { loadSupabaseStateToLocalStorage, syncLocalDataToSupabase } from "@/lib/supabase/syncClient";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadSupabaseStateToLocalStorage } from "@/lib/supabase/syncClient";
 import type { DiagnosisResult } from "@/types/diagnosis";
 import type { ActionLogsByDay } from "@/types/plan";
 
@@ -29,7 +29,6 @@ export default function MyPage() {
   const [purchased, setPurchased] = useState(false);
   const [message, setMessage] = useState("");
   const [isWorking, setIsWorking] = useState(false);
-  const supabaseConfigured = isSupabaseBrowserConfigured();
 
   const refreshLocalState = useCallback(() => {
     setResult(readDiagnosisResult());
@@ -37,7 +36,7 @@ export default function MyPage() {
     setPurchased(hasPurchased7DayPlan());
   }, []);
 
-  const restoreFromSupabase = useCallback(async (successMessage = "Supabaseから保存済みデータを復元しました。") => {
+  const restoreSavedData = useCallback(async (successMessage = "保存済みデータを確認しました。") => {
     setIsWorking(true);
     setMessage("");
     const remote = await loadSupabaseStateToLocalStorage();
@@ -65,14 +64,14 @@ export default function MyPage() {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!mounted) return;
       setUser(data.user);
-      if (data.user) await restoreFromSupabase("ログイン中のデータを確認しました。");
+      if (data.user) await restoreSavedData("ログイン中のデータを確認しました。");
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) restoreFromSupabase("ログイン中のデータを確認しました。");
+      if (session?.user) restoreSavedData("ログイン中のデータを確認しました。");
     });
 
     return () => {
@@ -80,38 +79,17 @@ export default function MyPage() {
       window.clearTimeout(refreshTimer);
       subscription.unsubscribe();
     };
-  }, [refreshLocalState, restoreFromSupabase]);
+  }, [refreshLocalState, restoreSavedData]);
 
   const issueCategory = result?.issueCategory ?? "general";
   const plans = useMemo(() => buildSevenDayPlan(issueCategory), [issueCategory]);
   const completedLogCount = plans.filter((plan) => logs[String(plan.day)]).length;
   const completedDays = plans.filter((plan) => logs[String(plan.day)]).map((plan) => plan.day);
 
-  async function saveToSupabase() {
-    if (!user) {
-      setMessage("メール認証後に保存できます。");
-      return;
-    }
-
-    setIsWorking(true);
-    setMessage("");
-    const syncResult = await syncLocalDataToSupabase();
-    setIsWorking(false);
-    setMessage(syncResult.ok ? "端末内の診断結果と行動ログを保存しました。" : syncResult.error ?? "Supabaseへの保存に失敗しました。");
-  }
-
-  async function restoreManually() {
-    if (!user) {
-      setMessage("メール認証後に復元できます。");
-      return;
-    }
-    await restoreFromSupabase();
-  }
-
   async function signOut() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) {
-      setMessage("Supabaseの設定がまだ完了していません。");
+      setMessage("メール認証の設定がまだ完了していません。");
       return;
     }
 
@@ -141,6 +119,12 @@ export default function MyPage() {
             <div className="mt-3">
               <p className="text-xl font-bold">ログイン中です</p>
               <p className="mt-2 break-words text-sm leading-relaxed text-kimochi-muted">{user.email}</p>
+              <p className="mt-3 text-sm leading-relaxed text-kimochi-muted">
+                購入状態や記録は、ログイン中のメールアドレスに保存されます。
+              </p>
+              <SecondaryButton onClick={signOut} disabled={isWorking} className="mt-5">
+                ログアウト
+              </SecondaryButton>
             </div>
           ) : (
             <div className="mt-3">
@@ -215,29 +199,11 @@ export default function MyPage() {
             )}
           </div>
         </Card>
-
-        <Card>
-          <p className="text-sm font-bold text-kimochi-primary">データ操作</p>
-          <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
-            ログイン中のメールアドレスに、診断結果と行動ログを保存・復元できます。
-          </p>
-          <div className="mt-5 space-y-3">
-            <SecondaryButton onClick={restoreManually} disabled={isWorking || !supabaseConfigured}>
-              Supabaseから復元
-            </SecondaryButton>
-            <SecondaryButton onClick={saveToSupabase} disabled={isWorking || !supabaseConfigured}>
-              端末データをSupabaseへ保存
-            </SecondaryButton>
-            <SecondaryButton onClick={signOut} disabled={isWorking || !user || !supabaseConfigured}>
-              ログアウト
-            </SecondaryButton>
-          </div>
-          {message ? (
-            <p className="mt-4 rounded-2xl bg-kimochi-bg p-4 text-sm font-bold leading-relaxed text-kimochi-muted">
-              {message}
-            </p>
-          ) : null}
-        </Card>
+        {message ? (
+          <Card className="bg-kimochi-bg">
+            <p className="text-sm font-bold leading-relaxed text-kimochi-muted">{message}</p>
+          </Card>
+        ) : null}
       </section>
     </MobileShell>
   );

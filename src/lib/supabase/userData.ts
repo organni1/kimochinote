@@ -10,7 +10,7 @@ type SyncPayload = {
 
 export async function ensureProfile(user: User) {
   const supabase = createSupabaseAdminClient();
-  if (!supabase) throw new Error("Supabaseの設定が完了していません。");
+  if (!supabase) throw new Error("保存設定が完了していません。");
 
   const { error } = await supabase.from("profiles").upsert({
     id: user.id,
@@ -22,7 +22,7 @@ export async function ensureProfile(user: User) {
 
 export async function syncUserData(user: User, payload: SyncPayload) {
   const supabase = createSupabaseAdminClient();
-  if (!supabase) throw new Error("Supabaseの設定が完了していません。");
+  if (!supabase) throw new Error("保存設定が完了していません。");
 
   await ensureProfile(user);
 
@@ -53,7 +53,7 @@ export async function syncUserData(user: User, payload: SyncPayload) {
 
 export async function readUserState(user: User) {
   const supabase = createSupabaseAdminClient();
-  if (!supabase) throw new Error("Supabaseの設定が完了していません。");
+  if (!supabase) throw new Error("保存設定が完了していません。");
 
   await ensureProfile(user);
 
@@ -100,7 +100,7 @@ export async function savePurchaseFromCheckoutSession({
   status: "paid" | "unpaid";
 }) {
   const supabase = createSupabaseAdminClient();
-  if (!supabase) throw new Error("Supabaseの設定が完了していません。");
+  if (!supabase) throw new Error("保存設定が完了していません。");
 
   const { error } = await supabase.from("purchases").upsert(
     {

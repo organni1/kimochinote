@@ -57,7 +57,7 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
   async function sendMagicLink() {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) {
-      setMessage("Supabaseの設定がまだ完了していません。環境変数を確認してください。");
+      setMessage("メール認証の設定がまだ完了していません。");
       return;
     }
 
@@ -74,7 +74,7 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
     setIsSending(false);
 
     if (error) {
-      setMessage("メールを送信できませんでした。メールアドレスとSupabaseの認証設定を確認してください。");
+      setMessage("メールを送信できませんでした。メールアドレスと認証設定を確認してください。");
       return;
     }
 
@@ -85,9 +85,9 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
   if (!configured) {
     return (
       <Card className="border border-amber-200 bg-kimochi-warning-bg">
-        <p className="font-bold text-amber-700">Supabaseの設定が必要です</p>
+        <p className="font-bold text-amber-700">メール認証の設定が必要です</p>
         <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
-          購入情報をアカウントに保存するには、Supabaseの環境変数を設定してください。
+          購入情報をアカウントに保存するには、メール認証の設定が必要です。
         </p>
       </Card>
     );

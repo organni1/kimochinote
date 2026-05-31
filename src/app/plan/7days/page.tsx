@@ -105,7 +105,7 @@ export default function SevenDaysPlanPage() {
           </div>
           <p className="mt-4 text-sm leading-relaxed text-kimochi-muted">
             購入時と同じメールアドレスでログインすると、購入済み状態を復元できます。
-            Supabaseの設定が未完了の場合、復元機能は利用できません。
+            メール認証が利用できない場合、復元できないことがあります。
           </p>
         </Card>
       </MobileShell>
