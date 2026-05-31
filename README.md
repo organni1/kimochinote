@@ -1,6 +1,6 @@
 # きもちノート / Kimochi Note
 
-恋愛不安タイプと彼の愛情表現タイプを診断し、自由入力の悩みも踏まえて、今日の行動アドバイスと7日間アクションプランを提供するNext.js MVPです。
+恋愛不安タイプと彼の愛情表現タイプを診断し、自由入力の悩みも踏まえて、今日の行動アドバイスと7日間アクションプランを提供するNext.jsアプリです。
 
 ## 起動方法
 
@@ -19,6 +19,7 @@ npm run dev
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://kimochinote.com
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxxxxxx
 SUPABASE_SERVICE_ROLE_KEY=xxxxxxxxxxxxxxxxxxxx
@@ -27,15 +28,18 @@ NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=true
 
 `NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=true` はローカル開発用です。本番では `false` または未設定にしてください。実装側でも `NODE_ENV === "development"` の時だけ有効になります。
 
+本番では `NEXT_PUBLIC_APP_URL` と `NEXT_PUBLIC_SITE_URL` をどちらも `https://kimochinote.com` にします。StripeとSupabaseのキーは、本番環境ではLive/Production用の値を使ってください。
+
 ## Supabase Auth設定
 
 Magic Linkを使うため、Supabase Dashboardで以下を確認します。
 
 1. `Authentication` → `URL Configuration` を開く
-2. `Site URL` にローカルでは `http://localhost:3000` を設定する
-3. `Redirect URLs` に `http://localhost:3000/auth/callback` を追加する
-4. 本番公開後は本番URLも追加する
-5. Vercelなどのプレビュー環境を使う場合は、必要に応じてSupabaseのRedirect URLワイルドカードを設定する
+2. ローカルでは `Site URL` に `http://localhost:3000` を設定する
+3. ローカルでは `Redirect URLs` に `http://localhost:3000/auth/callback` を追加する
+4. 本番では `Site URL` に `https://kimochinote.com` を設定する
+5. 本番では `Redirect URLs` に `https://kimochinote.com/auth/callback` を追加する
+6. Vercelなどのプレビュー環境を使う場合は、必要に応じてSupabaseのRedirect URLワイルドカードを設定する
 
 参考: [Supabase Redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
 
@@ -49,9 +53,9 @@ Supabase公式ドキュメントでは、カスタムSMTP未設定の場合に�
 
 ローカルでStripe決済だけ確認したい場合は、`NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=true` の状態で `/checkout/confirm` に表示される「テスト購入へ進む」を使います。
 
-## StripeローカルWebhook確認
+## Stripe確認
 
-Stripe CLIを起動して、SandboxイベントをローカルのWebhookへ転送します。
+ローカルではStripe CLIを起動して、SandboxイベントをローカルのWebhookへ転送します。
 
 ```powershell
 C:\Tools\stripe\stripe.exe listen --forward-to localhost:3000/api/stripe/webhook
@@ -59,12 +63,16 @@ C:\Tools\stripe\stripe.exe listen --forward-to localhost:3000/api/stripe/webhook
 
 表示された `whsec_...` を `.env.local` の `STRIPE_WEBHOOK_SECRET` に設定し、`npm run dev` を再起動します。
 
+本番ではStripe DashboardでWebhook endpointを `https://kimochinote.com/api/stripe/webhook` に設定し、`checkout.session.completed` を購読します。`STRIPE_SECRET_KEY` と `STRIPE_WEBHOOK_SECRET` はLive modeの値をCloudflare側の環境変数に設定してください。
+
 ## 検証コマンド
 
 ```bash
 npm run lint
 npm run build
 ```
+
+本番公開前の確認項目は `RELEASE_CHECKLIST.md` を参照してください。
 
 文字化け確認は、UTF-8としてファイルを読める環境で以下を実行します。
 
@@ -78,5 +86,5 @@ PowerShellの表示設定によっては、`Get-Content` の出力だけが文�
 
 - SupabaseのカスタムSMTP設定
 - Magic Linkが不安定な場合のメール+パスワード認証
-- Day2以降の行動ログ入力
-- マイページと購入復元導線
+- 本番決済後の購入復元フロー確認
+- 1か月アクションプランの別途検討

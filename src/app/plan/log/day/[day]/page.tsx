@@ -70,7 +70,7 @@ export default function ActionLogDayPage() {
 
   const issueCategory = result?.issueCategory ?? "general";
   const plan = useMemo(() => buildSevenDayPlan(issueCategory).find((item) => item.day === day), [day, issueCategory]);
-  const isSupportedDay = day === 1 && Boolean(plan);
+  const isSupportedDay = Number.isInteger(day) && day >= 1 && day <= 7 && Boolean(plan);
 
   async function save() {
     if (!plan || !isSupportedDay) return;
@@ -88,7 +88,7 @@ export default function ActionLogDayPage() {
   if (!checkedPurchase) {
     return (
       <MobileShell>
-        <AppHeader showBack backHref="/plan/7days" title="行動の記録" />
+        <AppHeader showBack backHref="/plan/7days" title="行動の記録" showMenu />
         <Card className="text-center">
           <p className="font-bold leading-loose">記録画面を準備しています。</p>
         </Card>
@@ -99,7 +99,7 @@ export default function ActionLogDayPage() {
   if (!purchased) {
     return (
       <MobileShell>
-        <AppHeader showBack backHref="/plan/offer" title="行動の記録" />
+        <AppHeader showBack backHref="/plan/offer" title="行動の記録" showMenu />
         <Card className="text-center">
           <Image
             src="/assets/icons/icon-heart-lock.png"
@@ -120,7 +120,7 @@ export default function ActionLogDayPage() {
   if (!isSupportedDay || !plan) {
     return (
       <MobileShell>
-        <AppHeader showBack backHref="/plan/7days" title="行動の記録" />
+        <AppHeader showBack backHref="/plan/7days" title="行動の記録" showMenu />
         <Card className="text-center">
           <Image
             src="/assets/icons/icon-calendar-checks.png"
@@ -129,9 +129,9 @@ export default function ActionLogDayPage() {
             height={120}
             className="mx-auto h-24 w-24 object-contain"
           />
-          <h1 className="mt-3 text-xl font-bold">Day 2以降の記録は後続Phaseで実装します</h1>
+          <h1 className="mt-3 text-xl font-bold">この日のプランは見つかりませんでした</h1>
           <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
-            まずはDay 1の行動を記録して、1日の変化を残してみましょう。
+            7日間プランの中から、記録したい日を選んでください。
           </p>
           <PrimaryButton href="/plan/7days" className="mt-5">
             7日間プランへ戻る
@@ -143,7 +143,7 @@ export default function ActionLogDayPage() {
 
   return (
     <MobileShell>
-      <AppHeader showBack backHref="/plan/7days" title="行動の記録" />
+      <AppHeader showBack backHref="/plan/7days" title="行動の記録" showMenu />
 
       <section className="text-center">
         <Image

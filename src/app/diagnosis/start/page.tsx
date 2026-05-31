@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { Card } from "@/components/ui/Card";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 
@@ -16,13 +17,17 @@ export default function DiagnosisStartPage() {
     <MobileShell>
       <AppHeader showBack />
       <SectionTitle>無料診断をはじめます</SectionTitle>
-      <p className="text-center text-lg leading-loose">質問は全部で20問です。<br />最後に、今いちばん悩んでいることを自由に書くこともできます。<br />直感で答えてください。</p>
+      <p className="text-center text-lg leading-loose">
+        質問は全部で20問です。<br />
+        最後に、今いちばん気になっていることを自由に書くこともできます。<br />
+        深く考えすぎず、今の気持ちに近いものを選んでください。
+      </p>
       <Image src="/assets/illustrations/illustration-journaling-calendar.png" alt="" width={250} height={260} className="mx-auto my-3 h-48 w-auto object-contain opacity-90" />
       <div className="space-y-4">
         {steps.map(([number, title, body, icon]) => (
           <Card key={number} className="flex items-center gap-4">
             <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-kimochi-primary font-brand text-2xl font-bold text-white">{number}</span>
-            <Image src={icon} alt="" width={58} height={58} className="h-14 w-14 object-contain" />
+            <CleanIconImage src={icon} sizeClassName="h-14 w-14" />
             <div>
               <p className="text-xl font-bold">{title}</p>
               <p className="font-bold leading-relaxed">{body}</p>

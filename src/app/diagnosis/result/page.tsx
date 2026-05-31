@@ -8,8 +8,9 @@ import { AdviceCard } from "@/components/diagnosis/AdviceCard";
 import { ConcernSummaryCard } from "@/components/diagnosis/ConcernSummaryCard";
 import { PaidPlanCTA } from "@/components/diagnosis/PaidPlanCTA";
 import { ResultTypeCard } from "@/components/diagnosis/ResultTypeCard";
+import { ShareSection } from "@/components/share/ShareSection";
 import { Card } from "@/components/ui/Card";
-import { avoidActionByIssueCategory, todayActionByIssueCategory } from "@/lib/diagnosis/actionAdviceTemplates";
+import { avoidActionByIssueCategory, todayActionByIssueCategory, todayActionShortByIssueCategory } from "@/lib/diagnosis/actionAdviceTemplates";
 import { issueCategoryLabels } from "@/lib/diagnosis/issueCategory";
 import { anxietyDescriptions, anxietyTypeLabels, partnerExpressionDescriptions, partnerExpressionTypeLabels } from "@/lib/diagnosis/resultTemplates";
 import { readDiagnosisResult } from "@/lib/storage/diagnosisStorage";
@@ -37,6 +38,7 @@ export default function DiagnosisResultPage() {
   const anxietyLabel = anxietyTypeLabels[result.anxietyType];
   const partnerLabel = partnerExpressionTypeLabels[result.partnerExpressionType];
   const issueLabel = issueCategoryLabels[result.issueCategory];
+  const todayActionShort = todayActionShortByIssueCategory[result.issueCategory];
 
   return (
     <MobileShell>
@@ -49,12 +51,17 @@ export default function DiagnosisResultPage() {
         <Image src="/assets/illustrations/illustration-couple-talking.png" alt="" width={260} height={220} className="mx-auto mt-3 h-44 w-auto object-contain opacity-85" />
       </section>
       <div className="space-y-5">
-        <ResultTypeCard label="あなたの恋愛不安タイプ" title={anxietyLabel} description={anxietyDescriptions[result.anxietyType]} icon="/assets/icons/icon-heart-message.png" />
-        <ResultTypeCard label="彼の愛情表現タイプ" title={partnerLabel} description={partnerExpressionDescriptions[result.partnerExpressionType]} icon="/assets/icons/icon-hand-heart.png" tone="blue" />
+        <ResultTypeCard label="あなたの恋愛不安タイプ" title={anxietyLabel} description={anxietyDescriptions[result.anxietyType]} icon="/assets/icons/icon-result-you.png" />
+        <ResultTypeCard label="彼の愛情表現タイプ" title={partnerLabel} description={partnerExpressionDescriptions[result.partnerExpressionType]} icon="/assets/icons/icon-result-partner.png" tone="blue" />
         <ConcernSummaryCard concern={result.freeTextConcern} categoryLabel={issueLabel} />
         <AdviceCard title="ふたりのすれ違いポイント" body={`あなたは「${anxietyLabel}」を求めやすく、彼は「${partnerLabel}」として気持ちを示している可能性があります。違いを悪いものと決めつけず、受け取り方と言葉にする量を少しずつ整えていきましょう。`} icon="/assets/icons/icon-broken-heart.png" />
         <AdviceCard title="今日のおすすめ行動" body={todayActionByIssueCategory[result.issueCategory]} icon="/assets/icons/icon-heart-sprout.png" tone="green" />
         <AdviceCard title="今日避けたいこと" body={avoidActionByIssueCategory[result.issueCategory]} icon="/assets/icons/icon-warning-heart.png" tone="purple" />
+        <ShareSection
+          anxietyTypeLabel={anxietyLabel}
+          partnerExpressionTypeLabel={partnerLabel}
+          todayActionShort={todayActionShort}
+        />
         <PaidPlanCTA />
       </div>
     </MobileShell>

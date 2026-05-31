@@ -1,12 +1,12 @@
 # きもちノート / Kimochi Note Handoff
 
-最終更新: 2026-05-20
+最終更新: 2026-05-31
 
 ## プロジェクト概要
 
 「きもちノート」は、恋愛不安タイプと彼の愛情表現タイプを診断し、自由入力の悩みも踏まえて、今日の行動アドバイスと7日間アクションプランを提供する日本語Webサービスです。
 
-現在の実装は Next.js App Router + TypeScript + Tailwind CSS のMVPです。Supabase Auth/DB、Stripe Checkout、Stripe Webhookの接続準備まで進んでいます。
+現在の実装は Next.js App Router + TypeScript + Tailwind CSS の本稼働前候補です。Supabase Auth/DB、Stripe Checkout、Stripe Webhook、購入復元、Day1〜Day7ログ、マイページ、SNS共有まで実装済みです。
 
 主な画面:
 
@@ -28,11 +28,11 @@
 
 完了済み:
 
-- 10画面のMVP実装
+- 主要画面の実装
 - Sample UI / icons / illustrations を `public/assets` 配下に整理
 - 診断20問、スコアリング、悩みカテゴリ判定、今日の行動出し分け
 - localStorage保存
-- 7日間プラン、Day1行動ログ保存
+- 7日間プラン、Day1〜Day7行動ログ保存
 - 法務ページ追加
 - Stripe Checkout API追加
 - `/checkout/success` で決済成功後に購入済みフラグを保存
@@ -42,6 +42,7 @@
 - 開発用Checkout導線を `NODE_ENV === "development"` かつ `NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=true` の時だけ表示
 - AuthPanelにメール未着時の案内を追加
 - READMEにSupabase/Stripe運用手順を追加
+- 購入復元導線、マイページ、SNS共有、法務ページ本番文言を追加
 
 最新の主要コミット:
 
@@ -73,23 +74,25 @@ npm run build
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://kimochinote.com
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxxxxxx
 SUPABASE_SERVICE_ROLE_KEY=xxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=true
 ```
 
-本番では `NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=false` または未設定にします。
+本番では `NEXT_PUBLIC_APP_URL=https://kimochinote.com`、`NEXT_PUBLIC_SITE_URL=https://kimochinote.com`、`NEXT_PUBLIC_ENABLE_DEV_CHECKOUT=false` または未設定にします。StripeとSupabaseの秘密値は本番用をCloudflareに設定します。
 
 ## Supabase設定
 
 Supabase Dashboardで以下を確認します。
 
 1. `Authentication` -> `URL Configuration`
-2. `Site URL`: `http://localhost:3000`
-3. `Redirect URLs`: `http://localhost:3000/auth/callback`
-4. 本番URL公開後は、本番URLの `/auth/callback` も追加
-5. Vercel Previewを使う場合は、Preview URLも追加
+2. ローカル `Site URL`: `http://localhost:3000`
+3. ローカル `Redirect URLs`: `http://localhost:3000/auth/callback`
+4. 本番 `Site URL`: `https://kimochinote.com`
+5. 本番 `Redirect URLs`: `https://kimochinote.com/auth/callback`
+6. Vercel Previewを使う場合は、Preview URLも追加
 
 DBテーブルは `supabase/schema.sql` をSupabase SQL Editorで実行して作成します。
 
@@ -114,7 +117,7 @@ Magic Linkが届かない場合:
 
 ## Stripe設定
 
-Stripe CheckoutはSandbox/Test Mode前提です。
+ローカルではStripe CheckoutをSandbox/Test Modeで確認します。
 
 ローカルWebhook:
 
@@ -140,25 +143,24 @@ C:\Tools\stripe\stripe.exe listen --forward-to localhost:3000/api/stripe/webhook
 - `NODE_ENV === "development"` の時だけ `/checkout/confirm` に「テスト購入へ進む」が表示されます。
 - 本番ビルドには表示されないガード済みです。
 
+本番ではStripe DashboardでWebhook endpointを `https://kimochinote.com/api/stripe/webhook` に設定し、`checkout.session.completed` を購読します。Stripeの事業者情報、WebサイトURL、特商法ページ、問い合わせ先が一致していることを確認してください。
+
 ## 次にやること
 
 最優先:
 
-1. Supabaseの `SUPABASE_SERVICE_ROLE_KEY` を正しいキーに差し替える
-2. `supabase/schema.sql` が実行済みか確認する
-3. Next.jsを再起動する
-4. Magic Linkログイン後、通常の `480円で購入する` からStripe Checkoutへ進めるか確認する
-5. Webhookで `purchases` に購入履歴が保存されるか確認する
+1. Cloudflareに本番環境変数を設定する
+2. Supabase Authの本番Site URL / Redirect URLを設定する
+3. Stripe Live modeのWebhookを `https://kimochinote.com/api/stripe/webhook` に設定する
+4. `npm run lint` と `npm run build` を通す
+5. 本番ドメインでMagic Link、480円購入、Webhook保存、購入復元を確認する
 
 次の実装候補:
 
 - Resend SMTPの本番設定と送信ログ確認
-- 本番ドメイン取得とSupabase Redirect URL更新
-- 購入復元導線のUI改善
-- Day2〜Day7の行動ログ解放
-- マイページ実装
 - メール+パスワード認証の追加検討
-- 文字化けしているサーバー側エラーメッセージの再修正
+- 1か月アクションプランの別途検討
+- 本番リリース後のアクセス解析/エラー監視
 
 ## 注意点
 
@@ -169,6 +171,7 @@ C:\Tools\stripe\stripe.exe listen --forward-to localhost:3000/api/stripe/webhook
 - `.codex/` はCodexアプリの自動生成メタデータです。現時点ではコミット対象にしていません。
 - `public/assets/sample-ui` は参照画像です。実画面はNext.js/Tailwindで再現しています。
 - Supabase/StripeのDashboard設定はコードだけでは完了しません。別端末では必ずDashboard側も確認してください。
+- 本番公開前の最終確認は `RELEASE_CHECKLIST.md` に沿って進めてください。
 
 ## 参考ファイル
 

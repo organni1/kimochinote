@@ -1,11 +1,11 @@
-import Image from "next/image";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 export function PaidPlanCTA() {
   return (
     <section className="rounded-[24px] border border-kimochi-border bg-white p-5 soft-shadow">
       <div className="flex items-center gap-4">
-        <Image src="/assets/icons/icon-gift-heart.png" alt="" width={70} height={70} className="h-16 w-16 object-contain" />
+        <CleanIconImage src="/assets/icons/icon-gift-heart.png" sizeClassName="h-16 w-16" />
         <p className="text-base font-bold leading-relaxed">
           今日だけで終わらせず、あなたの悩みに合わせた
           <span className="text-kimochi-primary">7日間プラン</span>

@@ -1,23 +1,33 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { ActionLog, DayPlan } from "@/types/plan";
 import { Card } from "@/components/ui/Card";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 
 export function DayPlanCard({
   plan,
-  expanded = false,
+  expanded = true,
   log,
+  footer,
 }: {
   plan: DayPlan;
   expanded?: boolean;
   log?: ActionLog | null;
+  footer?: ReactNode;
 }) {
+  const statusLabel = log ? "記録済み" : "未記録";
+
   if (!expanded) {
     return (
       <Card className="flex items-center justify-between p-4">
-        <span className="font-brand text-xl font-bold text-kimochi-primary">Day {plan.day}</span>
-        <span className="text-kimochi-primary">⌄</span>
+        <div>
+          <span className="font-brand text-xl font-bold text-kimochi-primary">Day {plan.day}</span>
+          <p className="mt-1 text-sm font-bold">{plan.title}</p>
+        </div>
+        <span className={`rounded-full px-3 py-1 text-xs font-bold ${log ? "bg-emerald-50 text-emerald-600" : "bg-kimochi-primary-soft text-kimochi-primary-dark"}`}>
+          {statusLabel}
+        </span>
       </Card>
     );
   }
@@ -33,7 +43,12 @@ export function DayPlanCard({
             <span className="mb-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
               記録済み
             </span>
-          ) : null}
+          ) : (
+            <span className="mb-2 inline-flex rounded-full bg-kimochi-primary-soft px-3 py-1 text-xs font-bold text-kimochi-primary-dark">
+              未記録
+            </span>
+          )}
+          <p className="mb-1 text-sm font-bold text-kimochi-primary">Day {plan.day}：{plan.title}</p>
           <h3 className="text-xl font-bold leading-relaxed">{plan.action}</h3>
         </div>
       </div>
@@ -63,6 +78,8 @@ export function DayPlanCard({
       <PrimaryButton href={`/plan/log/day/${plan.day}`}>
         {log ? "記録を見直す" : "今日の行動を記録する"}
       </PrimaryButton>
+
+      {footer ? <div>{footer}</div> : null}
     </Card>
   );
 }

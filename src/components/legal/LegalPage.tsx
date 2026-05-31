@@ -22,9 +22,6 @@ export function LegalPage({
         <p className="mt-3 text-sm leading-loose text-kimochi-muted">{lead}</p>
       </section>
       <Card className="space-y-6 text-sm leading-loose">{children}</Card>
-      <p className="mt-5 text-xs leading-relaxed text-kimochi-muted">
-        このページの内容はMVP用の仮文面です。正式な販売開始前に、事業内容に合わせて専門家レビューを行ってください。
-      </p>
       <AppFooter />
     </MobileShell>
   );

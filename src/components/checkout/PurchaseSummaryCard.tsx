@@ -1,16 +1,10 @@
-import Image from "next/image";
 import { Card } from "@/components/ui/Card";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 
 export function PurchaseSummaryCard() {
   return (
     <Card className="flex items-center gap-5">
-      <Image
-        src="/assets/icons/icon-notebook.png"
-        alt=""
-        width={110}
-        height={110}
-        className="h-24 w-24 shrink-0 object-contain"
-      />
+      <CleanIconImage src="/assets/icons/icon-seven-day-action-plan.png" sizeClassName="h-24 w-24" imageClassName="scale-100" />
       <div>
         <p className="text-sm font-bold text-kimochi-primary">あなたの悩みに合わせた</p>
         <h2 className="mt-1 text-xl font-bold leading-relaxed">7日間アクションプラン</h2>

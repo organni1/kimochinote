@@ -45,7 +45,7 @@ export default function PrivacyPage() {
       </LegalSection>
 
       <LegalSection title="お問い合わせ">
-        <p>メールアドレス：support@example.com（仮）</p>
+        <p>メールアドレス：support@kimochinote.com</p>
         <p>制定日：2026年5月18日</p>
       </LegalSection>
     </LegalPage>

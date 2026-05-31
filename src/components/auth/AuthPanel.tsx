@@ -1,24 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { Card } from "@/components/ui/Card";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { getSupabaseBrowserClient, isSupabaseBrowserConfigured } from "@/lib/supabase/client";
 
-export function AuthPanel({
-  onAuthChange,
-  onEmailChange,
-}: {
+export type AuthPanelHandle = {
+  focusEmail: () => void;
+};
+
+export const AuthPanel = forwardRef<AuthPanelHandle, {
   onAuthChange?: (user: User | null) => void;
   onEmailChange?: (email: string) => void;
-}) {
+  notice?: string;
+  highlight?: boolean;
+}>(function AuthPanel({
+  onAuthChange,
+  onEmailChange,
+  notice,
+  highlight = false,
+}, ref) {
   const [email, setEmail] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [hasSent, setHasSent] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const configured = isSupabaseBrowserConfigured();
+
+  useImperativeHandle(ref, () => ({
+    focusEmail() {
+      emailInputRef.current?.focus();
+    },
+  }), []);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -88,7 +103,7 @@ export function AuthPanel({
   }
 
   return (
-    <Card className="space-y-4">
+    <Card className={`space-y-4 ${highlight ? "border-2 border-kimochi-primary bg-[#fffafa]" : ""}`}>
       <div>
         <p className="font-bold text-kimochi-primary">購入前にメール認証をお願いします</p>
         <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
@@ -96,7 +111,14 @@ export function AuthPanel({
         </p>
       </div>
 
+      {notice ? (
+        <div className="rounded-2xl bg-kimochi-primary-soft p-4 text-sm font-bold leading-relaxed text-kimochi-primary-dark">
+          {notice}
+        </div>
+      ) : null}
+
       <input
+        ref={emailInputRef}
         type="email"
         value={email}
         onChange={(event) => {
@@ -126,4 +148,4 @@ export function AuthPanel({
       ) : null}
     </Card>
   );
-}
+});

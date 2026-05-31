@@ -4,23 +4,23 @@ export default function CommercialTransactionsPage() {
   return (
     <LegalPage
       title="特定商取引法に基づく表記"
-      lead="有料コンテンツ販売に関する表示です。正式販売前に実情報へ差し替えてください。"
+      lead="有料コンテンツ販売に関する表示です。"
     >
       <LegalSection title="販売事業者">
-        <p>きもちノート運営（仮）</p>
+        <p>Kimochi Note運営</p>
       </LegalSection>
 
       <LegalSection title="運営責任者">
-        <p>運営責任者名：未定（仮）</p>
+        <p>加藤聖也</p>
       </LegalSection>
 
       <LegalSection title="所在地">
-        <p>請求があった場合、遅滞なく開示します。（MVP仮表記）</p>
+        <p>請求があった場合、遅滞なく開示します。</p>
       </LegalSection>
 
       <LegalSection title="お問い合わせ先">
-        <p>メールアドレス：support@example.com（仮）</p>
-        <p>電話番号：請求があった場合、遅滞なく開示します。（MVP仮表記）</p>
+        <p>メールアドレス：support@kimochinote.com</p>
+        <p>電話番号：請求があった場合、遅滞なく開示します。</p>
       </LegalSection>
 
       <LegalSection title="販売価格">

@@ -23,7 +23,11 @@ export function AppHeader({ title = "Kimochi Note", showBack, backHref = "/", sh
         <span className="font-brand text-2xl tracking-normal text-kimochi-text">{title}</span>
       </Link>
       <div className="flex w-10 justify-end">
-        {showMenu ? <Image src="/assets/icons/icon-menu.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" /> : null}
+        {showMenu ? (
+          <Link href="/mypage" aria-label="マイページ" className="flex h-10 w-10 items-center justify-center rounded-full">
+            <Image src="/assets/icons/icon-menu.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+          </Link>
+        ) : null}
       </div>
     </header>
   );

@@ -5,9 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { DayPlanCard } from "@/components/plan/DayPlanCard";
+import { ActionLogShareSection } from "@/components/share/ActionLogShareSection";
 import { Card } from "@/components/ui/Card";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { buildSevenDayPlan } from "@/lib/diagnosis/actionPlanTemplates";
 import { issueCategoryLabels } from "@/lib/diagnosis/issueCategory";
 import { anxietyTypeLabels, partnerExpressionTypeLabels } from "@/lib/diagnosis/resultTemplates";
@@ -59,12 +62,17 @@ export default function SevenDaysPlanPage() {
 
   const issueCategory = result?.issueCategory ?? "general";
   const plans = useMemo(() => buildSevenDayPlan(issueCategory), [issueCategory]);
-  const dayOneLog = logs["1"] ?? null;
+  const completedLogCount = plans.filter((plan) => logs[String(plan.day)]).length;
+  const shareTargetDay =
+    plans
+      .filter((plan) => logs[String(plan.day)])
+      .map((plan) => plan.day)
+      .sort((a, b) => b - a)[0] ?? 1;
 
   if (checkingPurchase) {
     return (
       <MobileShell>
-        <AppHeader showBack backHref="/plan/offer" title="7日間プラン" />
+        <AppHeader showBack backHref="/plan/offer" title="7日間プラン" showMenu />
         <Card className="text-center">
           <h1 className="text-2xl font-bold">購入情報を確認しています</h1>
           <p className="mt-3 leading-loose text-kimochi-muted">
@@ -78,7 +86,7 @@ export default function SevenDaysPlanPage() {
   if (!purchased) {
     return (
       <MobileShell>
-        <AppHeader showBack backHref="/plan/offer" title="7日間プラン" />
+        <AppHeader showBack backHref="/plan/offer" title="7日間プラン" showMenu />
         <Card className="text-center">
           <Image
             src="/assets/icons/icon-heart-lock.png"
@@ -91,12 +99,13 @@ export default function SevenDaysPlanPage() {
           <p className="mt-3 leading-loose text-kimochi-muted">
             購入後すぐに、あなたの悩みに合わせた7日間プランを確認できます。
           </p>
-          <PrimaryButton href="/plan/offer" className="mt-5">
-            購入ページへ進む
-          </PrimaryButton>
+          <div className="mt-5 space-y-3">
+            <PrimaryButton href="/plan/offer">購入ページへ進む</PrimaryButton>
+            <SecondaryButton href="/checkout/confirm">購入済みの方はこちら</SecondaryButton>
+          </div>
           <p className="mt-4 text-sm leading-relaxed text-kimochi-muted">
-            購入済みなのに表示されない場合は、購入時と同じメールアドレスで
-            購入確認画面からログインしてください。
+            購入時と同じメールアドレスでログインすると、購入済み状態を復元できます。
+            Supabaseの設定が未完了の場合、復元機能は利用できません。
           </p>
         </Card>
       </MobileShell>
@@ -109,7 +118,7 @@ export default function SevenDaysPlanPage() {
 
   return (
     <MobileShell>
-      <AppHeader showBack backHref="/diagnosis/result" title="あなた専用 7日間アクションプラン" />
+      <AppHeader showBack backHref="/diagnosis/result" title="あなた専用 7日間アクションプラン" showMenu />
 
       {restoreMessage ? (
         <Card className="mb-5 border border-emerald-100 bg-emerald-50">
@@ -119,16 +128,14 @@ export default function SevenDaysPlanPage() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          ["あなた：", anxiety, "♥", "bg-rose-100 text-kimochi-primary"],
-          ["彼：", partner, "●", "bg-sky-100 text-sky-600"],
-          ["悩み：", issue, "…", "bg-amber-100 text-amber-600"],
-        ].map(([label, text, mark, className]) => (
+          ["あなた", anxiety, "/assets/icons/icon-result-you.png"],
+          ["彼", partner, "/assets/icons/icon-result-partner.png"],
+          ["悩み", issue, "/assets/icons/icon-result-concern.png"],
+        ].map(([label, text, icon]) => (
           <Card key={label} className="p-3 text-center">
-            <span className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold ${className}`}>
-              {mark}
-            </span>
-            <p className="mt-1 text-xs font-bold">{label}</p>
-            <p className="text-xs font-bold leading-relaxed">{text}</p>
+            <CleanIconImage src={icon} sizeClassName="mx-auto h-11 w-11 rounded-full" />
+            <p className="mt-2 text-[11px] font-bold leading-snug text-kimochi-muted">{label}：</p>
+            <p className="break-words text-xs font-bold leading-snug">{text}</p>
           </Card>
         ))}
       </div>
@@ -157,20 +164,38 @@ export default function SevenDaysPlanPage() {
       <div className="mb-5">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-2xl font-bold">
-            <span className="text-kimochi-primary">1</span> / 7日目
+            <span className="text-kimochi-primary">{completedLogCount}</span> / 7日 記録済み
           </p>
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${dayOneLog ? "bg-emerald-50 text-emerald-600" : "bg-kimochi-primary-soft text-kimochi-primary-dark"}`}>
-            {dayOneLog ? "Day 1：記録済み" : "未記録"}
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${completedLogCount > 0 ? "bg-emerald-50 text-emerald-600" : "bg-kimochi-primary-soft text-kimochi-primary-dark"}`}>
+            {completedLogCount > 0 ? `${completedLogCount}日分完了` : "まだ記録はありません"}
           </span>
         </div>
-        <ProgressBar value={1} max={7} />
+        <ProgressBar value={completedLogCount} max={7} />
       </div>
 
       <div className="space-y-4">
-        <DayPlanCard plan={plans[0]} expanded log={dayOneLog} />
-        {plans.slice(1, 4).map((plan) => (
-          <DayPlanCard key={plan.day} plan={plan} />
-        ))}
+        {plans.map((plan) => {
+          const log = logs[String(plan.day)] ?? null;
+
+          return (
+            <DayPlanCard
+              key={plan.day}
+              plan={plan}
+              log={log}
+              footer={
+                plan.day === shareTargetDay ? (
+                  <ActionLogShareSection
+                    day={plan.day}
+                    title={plan.title}
+                    action={plan.action}
+                    insight={log?.insight}
+                    isLogged={Boolean(log)}
+                  />
+                ) : null
+              }
+            />
+          );
+        })}
       </div>
 
       <Card className="mt-6 flex items-center gap-4 bg-[#fffafa]">

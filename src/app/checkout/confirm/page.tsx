@@ -1,37 +1,74 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
-import { AuthPanel } from "@/components/auth/AuthPanel";
+import { AuthPanel, type AuthPanelHandle } from "@/components/auth/AuthPanel";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { PurchaseSummaryCard } from "@/components/checkout/PurchaseSummaryCard";
 import { Card } from "@/components/ui/Card";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { getSupabaseAccessToken, isSupabaseBrowserConfigured } from "@/lib/supabase/client";
-import { syncLocalDataToSupabase } from "@/lib/supabase/syncClient";
+import { loadSupabaseStateToLocalStorage, syncLocalDataToSupabase } from "@/lib/supabase/syncClient";
 
 export default function CheckoutConfirmPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isDevLoading, setIsDevLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [restoreMessage, setRestoreMessage] = useState("");
+  const [isCheckingRestore, setIsCheckingRestore] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authEmail, setAuthEmail] = useState("");
+  const [authNotice, setAuthNotice] = useState("");
+  const authSectionRef = useRef<HTMLElement>(null);
+  const authPanelRef = useRef<AuthPanelHandle>(null);
   const supabaseConfigured = isSupabaseBrowserConfigured();
   const devCheckoutEnabled =
     process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_ENABLE_DEV_CHECKOUT === "true";
+  const paymentMethods = [
+    ["クレジットカード", "/assets/icons/icon-payment-card.png"],
+    ["Apple Pay", "/assets/icons/icon-payment-apple-pay.png"],
+    ["Google Pay", "/assets/icons/icon-payment-google-pay.png"],
+  ];
 
-  const handleAuthChange = useCallback((nextUser: User | null) => {
+  const handleAuthChange = useCallback(async (nextUser: User | null) => {
     setUser(nextUser);
-    if (nextUser) syncLocalDataToSupabase();
-  }, []);
+    setRestoreMessage("");
+    if (nextUser) setAuthNotice("");
+    if (!nextUser) return;
+
+    setIsCheckingRestore(true);
+    await syncLocalDataToSupabase();
+    const remote = await loadSupabaseStateToLocalStorage();
+    setIsCheckingRestore(false);
+
+    if (remote.ok && remote.data?.purchased) {
+      setRestoreMessage("購入済み状態を復元しました。7日間プランへ移動します。");
+      window.setTimeout(() => router.replace("/plan/7days"), 900);
+      return;
+    }
+
+    if (!remote.ok) {
+      setRestoreMessage("復元を確認できませんでした。購入済みの場合は、購入時と同じメールアドレスでログインしてください。");
+    }
+  }, [router]);
 
   async function purchase() {
-    setIsLoading(true);
     setErrorMessage("");
+
+    if (!user) {
+      setAuthNotice("購入前にメール認証をお願いします。メールアドレスを入力すると、購入情報を保存・復元できます。");
+      authSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      window.setTimeout(() => authPanelRef.current?.focusEmail(), 350);
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const accessToken = await getSupabaseAccessToken();
@@ -94,18 +131,22 @@ export default function CheckoutConfirmPage() {
       <AppHeader showBack backHref="/plan/offer" title="購入内容の確認" />
       <PurchaseSummaryCard />
 
-      <section className="mt-6">
-        <AuthPanel onAuthChange={handleAuthChange} onEmailChange={setAuthEmail} />
+      <section ref={authSectionRef} className="mt-6 scroll-mt-6">
+        <AuthPanel
+          ref={authPanelRef}
+          onAuthChange={handleAuthChange}
+          onEmailChange={setAuthEmail}
+          notice={authNotice}
+          highlight={Boolean(authNotice)}
+        />
       </section>
 
       <section className="mt-7">
         <h2 className="mb-4 text-2xl font-bold">お支払い方法</h2>
         <Card className="grid grid-cols-3 gap-3 p-4">
-          {["クレジットカード", "Apple Pay", "Google Pay"].map((method) => (
+          {paymentMethods.map(([method, icon]) => (
             <div key={method} className="rounded-2xl border border-kimochi-border p-3 text-center">
-              <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-kimochi-bg text-xl">
-                □
-              </div>
+              <CleanIconImage src={icon} sizeClassName="mx-auto mb-2 h-12 w-12 rounded-xl" imageClassName="scale-100" />
               <p className="text-sm font-bold leading-snug">{method}</p>
             </div>
           ))}
@@ -119,13 +160,7 @@ export default function CheckoutConfirmPage() {
       </p>
 
       <Card className="flex items-center gap-4 bg-[#fffafa]">
-        <Image
-          src="/assets/icons/icon-secure-payment.png"
-          alt=""
-          width={70}
-          height={70}
-          className="h-16 w-16 object-contain"
-        />
+        <CleanIconImage src="/assets/icons/icon-secure-payment.png" sizeClassName="h-16 w-16" />
         <p className="font-bold leading-relaxed">
           決済は<span className="text-kimochi-primary">Stripe</span>を通じて安全に処理されます。
           購入済み状態はログイン中のメールアドレスに紐づいて保存されます。
@@ -139,8 +174,23 @@ export default function CheckoutConfirmPage() {
         </Card>
       ) : null}
 
+      {isCheckingRestore ? (
+        <Card className="mt-5 border border-kimochi-primary/20 bg-kimochi-primary-soft">
+          <p className="font-bold text-kimochi-primary-dark">購入済み状態を確認しています</p>
+          <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
+            ログイン中のメールアドレスに紐づく購入情報を確認しています。
+          </p>
+        </Card>
+      ) : null}
+
+      {restoreMessage ? (
+        <Card className="mt-5 border border-emerald-100 bg-emerald-50">
+          <p className="text-sm font-bold text-emerald-700">{restoreMessage}</p>
+        </Card>
+      ) : null}
+
       <div className="mt-8">
-        <PrimaryButton onClick={purchase} disabled={isLoading || isDevLoading || !supabaseConfigured || !user}>
+        <PrimaryButton onClick={purchase} disabled={isLoading || isDevLoading || isCheckingRestore || !supabaseConfigured}>
           {isLoading ? "Stripeへ移動しています..." : "480円で購入する"}
         </PrimaryButton>
       </div>

@@ -9,6 +9,15 @@ export const todayActionByIssueCategory: Record<IssueCategory, string> = {
   general: "今日は不安をそのままぶつける前に、彼が最近してくれて嬉しかったことを1つ思い出してみましょう。安心できる材料を見つけてから、落ち着いて会話を始めるのがおすすめです。",
 };
 
+export const todayActionShortByIssueCategory: Record<IssueCategory, string> = {
+  contact: "返信の早さだけで判断せず、軽い話題を1つ送ってみる",
+  words: "彼が最近してくれて嬉しかったことを1つ伝えてみる",
+  abandonment: "事実と想像を分けて、落ち着いて整理してみる",
+  future: "近い予定から、自然に会話を始めてみる",
+  mismatch: "自分が求める愛情表現と彼の行動を分けて整理する",
+  general: "不安をぶつける前に、安心できた出来事を1つ思い出す",
+};
+
 export const avoidActionByIssueCategory: Record<IssueCategory, string> = {
   contact: "返信がない理由を決めつけて、何度も追いLINEを送ること。",
   words: "「本当に私のこと好きなの？」と急に確認すること。",

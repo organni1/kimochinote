@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { Card } from "@/components/ui/Card";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { PlanInclusionList } from "@/components/plan/PlanInclusionList";
 import { PlanPreviewCard } from "@/components/plan/PlanPreviewCard";
@@ -30,7 +31,7 @@ export default function PlanOfferPage() {
         <PlanPreviewCard />
       </section>
       <Card className="mt-6 flex items-center gap-4">
-        <Image src="/assets/icons/icon-hand-heart.png" alt="" width={80} height={80} className="h-20 w-20 object-contain" />
+        <CleanIconImage src="/assets/icons/icon-hand-heart.png" sizeClassName="h-20 w-20" />
         <p className="font-bold leading-loose">このプランは、彼を操作したり、気持ちを無理に確認するためのものではありません。</p>
       </Card>
     </MobileShell>

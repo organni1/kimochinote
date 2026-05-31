@@ -1,10 +1,10 @@
-import Image from "next/image";
 import { Card } from "@/components/ui/Card";
+import { CleanIconImage } from "@/components/ui/CleanIconImage";
 
 export function ConcernSummaryCard({ concern, categoryLabel }: { concern?: string; categoryLabel: string }) {
   return (
     <Card className="flex gap-4">
-      <Image src="/assets/icons/icon-note-heart.png" alt="" width={58} height={58} className="h-14 w-14 shrink-0 object-contain" />
+      <CleanIconImage src="/assets/icons/icon-result-concern.png" sizeClassName="h-14 w-14" />
       <div>
         <h3 className="font-bold text-kimochi-primary">あなたが書いてくれた悩み</h3>
         {concern ? (
