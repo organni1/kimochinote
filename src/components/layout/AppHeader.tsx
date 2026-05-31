@@ -6,13 +6,29 @@ type AppHeaderProps = {
   showBack?: boolean;
   backHref?: string;
   showMenu?: boolean;
+  leftLinkLabel?: string;
+  leftLinkHref?: string;
 };
 
-export function AppHeader({ title = "Kimochi Note", showBack, backHref = "/", showMenu = false }: AppHeaderProps) {
+export function AppHeader({
+  title = "Kimochi Note",
+  showBack,
+  backHref = "/",
+  showMenu = false,
+  leftLinkLabel,
+  leftLinkHref = "/",
+}: AppHeaderProps) {
   return (
     <header className="mb-6 flex h-12 items-center justify-between">
-      <div className="w-10">
-        {showBack ? (
+      <div className="flex w-24 justify-start">
+        {leftLinkLabel ? (
+          <Link
+            href={leftLinkHref}
+            className="flex min-h-10 items-center rounded-full text-sm font-bold text-kimochi-primary"
+          >
+            {leftLinkLabel}
+          </Link>
+        ) : showBack ? (
           <Link href={backHref} aria-label="戻る" className="flex h-10 w-10 items-center justify-center rounded-full">
             <Image src="/assets/icons/icon-arrow-back.png" alt="" width={22} height={22} className="h-6 w-6 object-contain" />
           </Link>

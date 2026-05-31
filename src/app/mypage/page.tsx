@@ -91,7 +91,7 @@ export default function MyPage() {
 
   return (
     <MobileShell>
-      <AppHeader title="マイページ" />
+      <AppHeader title="マイページ" leftLinkLabel="トップページ" leftLinkHref="/" />
 
       <section className="space-y-5">
         {!user ? (
@@ -105,16 +105,17 @@ export default function MyPage() {
               <p className="mt-3 rounded-2xl bg-kimochi-primary-soft p-4 text-sm font-bold leading-relaxed text-kimochi-primary-dark">
                 パスワードは不要です。メールに届くリンクからログインできます。
               </p>
-              <SecondaryButton href="/" className="mt-5">
-                トップページ
-              </SecondaryButton>
+              <div className="mt-5">
+                <AuthPanel
+                  onAuthChange={setUser}
+                  title="購入時のメールアドレスでログイン"
+                  description="購入時と同じメールアドレスを入力してください。ログイン用リンクをメールでお送りします。"
+                  successMessage="ログイン用メールを送信しました。メール内のリンクを開くとログインできます。"
+                  embedded
+                  hideIntro
+                />
+              </div>
             </Card>
-            <AuthPanel
-              onAuthChange={setUser}
-              title="購入時のメールアドレスでログイン"
-              description="購入時と同じメールアドレスを入力してください。ログイン用リンクをメールでお送りします。"
-              successMessage="ログイン用メールを送信しました。メール内のリンクを開くとログインできます。"
-            />
           </>
         ) : (
           <Card className={purchased ? "border border-emerald-100 bg-emerald-50" : ""}>
@@ -131,7 +132,6 @@ export default function MyPage() {
               <SecondaryButton onClick={signOut} disabled={isWorking}>
                 ログアウト
               </SecondaryButton>
-              <SecondaryButton href="/">トップページ</SecondaryButton>
             </div>
           </Card>
         )}
