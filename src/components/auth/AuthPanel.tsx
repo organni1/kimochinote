@@ -15,11 +15,17 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
   onEmailChange?: (email: string) => void;
   notice?: string;
   highlight?: boolean;
+  title?: string;
+  description?: string;
+  successMessage?: string;
 }>(function AuthPanel({
   onAuthChange,
   onEmailChange,
   notice,
   highlight = false,
+  title = "購入前にメール認証をお願いします",
+  description = "購入済み状態を別の端末でも復元できるよう、メールアドレスに購入情報を紐づけます。",
+  successMessage = "ログイン用メールを送信しました。メール内のリンクを開くと購入に進めます。",
 }, ref) {
   const [email, setEmail] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -79,7 +85,7 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
     }
 
     setHasSent(true);
-    setMessage("ログイン用メールを送信しました。メール内のリンクを開くと購入に進めます。");
+    setMessage(successMessage);
   }
 
   if (!configured) {
@@ -105,9 +111,9 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
   return (
     <Card className={`space-y-4 ${highlight ? "border-2 border-kimochi-primary bg-[#fffafa]" : ""}`}>
       <div>
-        <p className="font-bold text-kimochi-primary">購入前にメール認証をお願いします</p>
+        <p className="font-bold text-kimochi-primary">{title}</p>
         <p className="mt-2 text-sm leading-relaxed text-kimochi-muted">
-          購入済み状態を別の端末でも復元できるよう、メールアドレスに購入情報を紐づけます。
+          {description}
         </p>
       </div>
 

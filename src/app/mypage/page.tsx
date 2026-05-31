@@ -100,13 +100,21 @@ export default function MyPage() {
               <p className="text-sm font-bold text-kimochi-primary">購入済みの方のログイン</p>
               <h1 className="mt-2 text-2xl font-bold">購入時のメールアドレスでログイン</h1>
               <p className="mt-3 text-sm leading-relaxed text-kimochi-muted">
-                購入時と同じメールアドレスでログインすると、購入済み状態や記録を確認できます。
+                購入時と同じメールアドレスにログイン用リンクを送ります。ログインすると、購入済み状態や記録を確認できます。
+              </p>
+              <p className="mt-3 rounded-2xl bg-kimochi-primary-soft p-4 text-sm font-bold leading-relaxed text-kimochi-primary-dark">
+                パスワードは不要です。メールに届くリンクからログインできます。
               </p>
               <SecondaryButton href="/" className="mt-5">
                 トップページ
               </SecondaryButton>
             </Card>
-            <AuthPanel onAuthChange={setUser} />
+            <AuthPanel
+              onAuthChange={setUser}
+              title="購入時のメールアドレスでログイン"
+              description="購入時と同じメールアドレスを入力してください。ログイン用リンクをメールでお送りします。"
+              successMessage="ログイン用メールを送信しました。メール内のリンクを開くとログインできます。"
+            />
           </>
         ) : (
           <Card className={purchased ? "border border-emerald-100 bg-emerald-50" : ""}>
