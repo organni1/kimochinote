@@ -84,6 +84,14 @@ export default function Home() {
         </div>
       </Card>
 
+      <section className="mt-8 rounded-[22px] border border-kimochi-border/70 bg-white/70 p-5">
+        <p className="text-xs font-bold tracking-[0.18em] text-kimochi-primary">AFTER DIAGNOSIS</p>
+        <h2 className="mt-2 text-lg font-bold leading-snug">診断後に、続け方を選べます</h2>
+        <p className="mt-3 text-sm font-bold leading-relaxed text-kimochi-muted">
+          まずは無料診断だけで大丈夫です。結果を見たあと、7日間の買い切りプランか、月額Plusの30日伴走を選べます。
+        </p>
+      </section>
+
       <div className="mt-8">
         <PrimaryButton href="/diagnosis/start">無料で診断をはじめる</PrimaryButton>
       </div>

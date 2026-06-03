@@ -34,9 +34,8 @@ export function AppHeader({
           </Link>
         ) : null}
       </div>
-      <Link href="/" aria-label="トップページへ" className="flex items-center gap-2">
-        <Image src="/assets/icons/icon-note-heart.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
-        <span className="font-brand text-2xl tracking-normal text-kimochi-text">{title}</span>
+      <Link href="/" aria-label="トップページへ" className="flex min-w-0 flex-1 items-center justify-center px-2 text-center">
+        <span className="truncate font-brand text-2xl tracking-normal text-kimochi-text">{title}</span>
       </Link>
       <div className="flex w-24 justify-end">
         {showMenu ? (

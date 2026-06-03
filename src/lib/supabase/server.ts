@@ -1,12 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
-import { getSupabaseServerConfig } from "@/lib/supabase/config";
+import { getSupabaseAdminConfig, getSupabaseServerConfig } from "@/lib/supabase/config";
 
 export function isSupabaseServerConfigured() {
   return Boolean(getSupabaseServerConfig());
 }
 
 export function createSupabaseAdminClient() {
-  const config = getSupabaseServerConfig();
+  const config = getSupabaseAdminConfig();
   if (!config) return null;
 
   return createClient(config.url, config.serviceRoleKey, {

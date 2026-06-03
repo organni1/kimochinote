@@ -17,6 +17,13 @@ export default function DiagnosisStartPage() {
     <MobileShell>
       <AppHeader showBack />
       <SectionTitle>無料診断をはじめます</SectionTitle>
+      <div className="mb-5 grid grid-cols-3 gap-2">
+        {["20問", "約3分", "登録なし"].map((label) => (
+          <div key={label} className="rounded-full border border-kimochi-border bg-white px-3 py-2 text-center text-sm font-bold text-kimochi-primary-dark">
+            {label}
+          </div>
+        ))}
+      </div>
       <p className="text-center text-lg leading-loose">
         質問は全部で20問です。<br />
         最後に、今いちばん気になっていることを自由に書くこともできます。<br />

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { savePurchaseFromCheckoutSession } from "@/lib/supabase/userData";
+import {
+  savePlusSubscriptionFromCheckoutSession,
+  savePlusSubscriptionFromStripeSubscription,
+  savePurchaseFromCheckoutSession,
+} from "@/lib/supabase/userData";
 
 export async function POST(request: Request) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -30,6 +34,17 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
+    if (session.mode === "subscription" && session.metadata?.product === "kimochi_note_plus_monthly") {
+      try {
+        await savePlusSubscriptionFromCheckoutSession(session);
+      } catch (error) {
+        console.error("Failed to save Plus subscription from checkout", error);
+        return NextResponse.json({ error: "Plus購入情報の保存に失敗しました。" }, { status: 500 });
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
     const userId = session.metadata?.user_id;
 
     if (!userId) {
@@ -53,6 +68,19 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("Failed to save purchase from webhook", error);
       return NextResponse.json({ error: "購入情報の保存に失敗しました。" }, { status: 500 });
+    }
+  }
+
+  if (
+    event.type === "customer.subscription.created" ||
+    event.type === "customer.subscription.updated" ||
+    event.type === "customer.subscription.deleted"
+  ) {
+    try {
+      await savePlusSubscriptionFromStripeSubscription(event.data.object);
+    } catch (error) {
+      console.error("Failed to save Plus subscription event", error);
+      return NextResponse.json({ error: "Plusサブスク情報の保存に失敗しました。" }, { status: 500 });
     }
   }
 

@@ -6,7 +6,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { AdviceCard } from "@/components/diagnosis/AdviceCard";
 import { ConcernSummaryCard } from "@/components/diagnosis/ConcernSummaryCard";
-import { PaidPlanCTA } from "@/components/diagnosis/PaidPlanCTA";
+import { ContinuationChoice } from "@/components/diagnosis/ContinuationChoice";
 import { ResultTypeCard } from "@/components/diagnosis/ResultTypeCard";
 import { ShareSection } from "@/components/share/ShareSection";
 import { Card } from "@/components/ui/Card";
@@ -62,7 +62,7 @@ export default function DiagnosisResultPage() {
           partnerExpressionTypeLabel={partnerLabel}
           todayActionShort={todayActionShort}
         />
-        <PaidPlanCTA />
+        <ContinuationChoice />
       </div>
     </MobileShell>
   );

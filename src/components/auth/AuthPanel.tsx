@@ -35,6 +35,7 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [hasSent, setHasSent] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const configured = isSupabaseBrowserConfigured();
@@ -90,6 +91,29 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
 
     setHasSent(true);
     setMessage(successMessage);
+  }
+
+  async function signInWithGoogle() {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) {
+      setMessage("メール認証の設定がまだ完了していません。");
+      return;
+    }
+
+    setIsGoogleLoading(true);
+    setMessage("");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setIsGoogleLoading(false);
+      setMessage("Googleログインを開始できませんでした。認証設定を確認してください。");
+    }
   }
 
   if (!configured) {
@@ -153,6 +177,16 @@ export const AuthPanel = forwardRef<AuthPanelHandle, {
         placeholder="mail@example.com"
         className="min-h-14 w-full rounded-2xl border border-kimochi-border bg-white px-4 outline-none focus:border-kimochi-primary"
       />
+
+      <button
+        type="button"
+        onClick={signInWithGoogle}
+        disabled={isGoogleLoading}
+        className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full border-2 border-kimochi-border bg-white px-6 py-3 text-center text-base font-bold text-kimochi-text transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-45"
+      >
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-lg shadow-sm">G</span>
+        {isGoogleLoading ? "Googleログインを開いています..." : "Googleでログイン"}
+      </button>
 
       <PrimaryButton onClick={sendMagicLink} disabled={isSending || !email.trim()}>
         {isSending ? "メールを送信しています..." : hasSent ? "ログイン用メールを再送する" : "ログイン用メールを送る"}

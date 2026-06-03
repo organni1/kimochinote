@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { DayPlanCard } from "@/components/plan/DayPlanCard";
+import { PlusCheckoutButton } from "@/components/plus/PlusCheckoutButton";
 import { ActionLogShareSection } from "@/components/share/ActionLogShareSection";
 import { Card } from "@/components/ui/Card";
 import { CleanIconImage } from "@/components/ui/CleanIconImage";
@@ -19,6 +20,7 @@ import {
   readActionLogs,
   readDiagnosisResult,
 } from "@/lib/storage/diagnosisStorage";
+import { getSupabaseAccessToken } from "@/lib/supabase/client";
 import { loadSupabaseStateToLocalStorage } from "@/lib/supabase/syncClient";
 import type { DiagnosisResult } from "@/types/diagnosis";
 import type { ActionLogsByDay } from "@/types/plan";
@@ -29,6 +31,7 @@ export default function SevenDaysPlanPage() {
   const [restoreMessage, setRestoreMessage] = useState("");
   const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [logs, setLogs] = useState<ActionLogsByDay>({});
+  const [hasPlus, setHasPlus] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -48,6 +51,17 @@ export default function SevenDaysPlanPage() {
         setLogs(readActionLogs());
         if (remote.data.purchased && !localPurchased) {
           setRestoreMessage("購入済み状態をメールアカウントから復元しました。");
+        }
+      }
+
+      const accessToken = await getSupabaseAccessToken();
+      if (accessToken) {
+        const plusResponse = await fetch("/api/plus/state", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const plusData = (await plusResponse.json().catch(() => null)) as { hasPlus?: boolean } | null;
+        if (mounted && plusResponse.ok) {
+          setHasPlus(Boolean(plusData?.hasPlus));
         }
       }
 
@@ -197,6 +211,23 @@ export default function SevenDaysPlanPage() {
           );
         })}
       </div>
+
+      <Card className="mt-6 border border-kimochi-border bg-[#fffafa]">
+        <p className="text-sm font-bold text-kimochi-primary">続けたい方へ</p>
+        <h2 className="mt-2 text-xl font-bold leading-snug">
+          7日間の続きとして、30日間の伴走プランへ
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-kimochi-muted">
+          これまでの診断結果と7日間の記録はそのまま残ります。Plusでは、Day8以降の行動や不安チェックインを続けられます。
+        </p>
+        <div className="mt-5">
+          {hasPlus ? (
+            <PrimaryButton href="/plus">Plusの今日のセッションへ戻る</PrimaryButton>
+          ) : (
+            <PlusCheckoutButton>Plusで30日間の伴走をはじめる</PlusCheckoutButton>
+          )}
+        </div>
+      </Card>
 
       <Card className="mt-6 flex items-center gap-4 bg-[#fffafa]">
         <Image
